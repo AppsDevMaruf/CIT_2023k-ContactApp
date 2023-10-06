@@ -11,14 +11,16 @@ import android.widget.Toast
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import coil.load
 import com.maruf.contactapp.R
 import com.maruf.contactapp.databinding.RowContactItemBinding
-import com.maruf.contactapp.model.ContactModel
+
+import com.maruf.contactapp.model.Contacts
 
 
-class ContactAdapter(var contacts: List<ContactModel>) :
+class ContactAdapter(var contacts: List<Contacts>) :
     RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
-    private var filteredContacts: List<ContactModel> = contacts.toList()
+    private var filteredContacts: List<Contacts> = contacts.toList()
 
     // create an inner class with name ViewHolder
     // It takes a view argument, in which pass the generated class of single_item.xml
@@ -46,7 +48,10 @@ class ContactAdapter(var contacts: List<ContactModel>) :
             with(contactModel) {
                 binding.nameTV.text = this.name
                 binding.numberTV.text = this.number
-                binding.profileImage.setImageResource(this.image)
+                // URL
+                img?.let {
+                    binding.profileImage.load(it)
+                }
 
                 binding.callIV.setOnClickListener {
                     val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + this.number))
@@ -79,8 +84,6 @@ class ContactAdapter(var contacts: List<ContactModel>) :
                 }
             }
         }
-
-
     // return the size of languageList
     override fun getItemCount(): Int {
         return filteredContacts.size

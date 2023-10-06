@@ -6,32 +6,41 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
-
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.maruf.contactapp.adapter.ContactAdapter
 import com.maruf.contactapp.databinding.FragmentHomeBinding
-
-import com.maruf.contactapp.model.ContactModel
+import com.maruf.contactapp.viewmodel.ContactViewModel
 
 
 class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
+    private val viewModel by viewModels<ContactViewModel>()
+    private lateinit var contactAdapter: ContactAdapter
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
         binding = FragmentHomeBinding.inflate(inflater, container, false)
+        binding.addNewContactBtn.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_addFragment)
 
-        val contactList = mutableListOf<ContactModel>()
-        contactList.add(ContactModel(R.drawable.profile_img,"Kajol","0168742252"))
-        contactList.add(ContactModel(R.drawable.profile_img,"Maruf","01307422428"))
-        contactList.add(ContactModel(R.drawable.profile_img,"Porosh","0178742252"))
-        contactList.add(ContactModel(R.drawable.profile_img,"Kamrun","01458742252"))
-
-        val adapter = ContactAdapter(contactList) // Create the adapter
-
-        binding.contactRecyclerView.apply {
-            setHasFixedSize(true)
-            this.adapter = adapter // Set the adapter to the RecyclerView
         }
+        // Observe the LiveData returned by the getAllContacts method
+        viewModel.getAllContacts().observe(viewLifecycleOwner) {
+            binding.totalContactsTV.text = getString(R.string.total_contact, it.size)
+            // set the layout manager and the adapter for the recycler view
+            binding.contactRecyclerView.apply {
+                contactAdapter = ContactAdapter(it)
+                this.adapter = contactAdapter
+                setHasFixedSize(true)
+            }
+        }
+
+
 
         binding.searchViewId.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -39,14 +48,10 @@ class HomeFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                adapter.filter(newText.orEmpty()) // Use the adapter reference here
+                contactAdapter.filter(newText.orEmpty()) // Use the adapter reference here
                 return true
             }
         })
-        //binding.totalContactsTV.text = contactList.size.toString()
-        binding.totalContactsTV.text = getString(R.string.total_contact,contactList.size)
-
-
 
 
         return binding.root

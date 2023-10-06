@@ -5,8 +5,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import coil.load
 import com.maruf.contactapp.databinding.FragmentDetailsBinding
-import com.maruf.contactapp.model.ContactModel
+import com.maruf.contactapp.model.Contacts
+
 
 class DetailsFragment : Fragment() {
     private lateinit var binding: FragmentDetailsBinding
@@ -17,10 +19,14 @@ class DetailsFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentDetailsBinding.inflate(inflater, container, false)
-        val contactModel = arguments?.getSerializable("contact") as ContactModel?
+        val contactModel = arguments?.getSerializable("contact") as Contacts?
 
         if (contactModel != null) {
-           binding.profileImage.setImageResource(contactModel.image)
+           //binding.profileImage.setImageResource(contactModel.image)
+            // URL
+            contactModel.img?.let {
+                binding.profileImage.load(it)
+            }
            binding.nameTV.text = contactModel.name
            binding.numberTV.text = contactModel.number
         }
